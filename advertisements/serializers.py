@@ -34,8 +34,15 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Метод для валидации. Вызывается при создании и обновлении."""
+        if self.context['request'].method == 'POST':
+            if Advertisement.objects.filter(creator_id=self.context['request'].user, status='OPEN').count() <= 10:
+                return data
+            else:
+                raise serializers.ValidationError('Sorry, User has too many notes with status OPEN!')
+        if self.context['request'].method == 'PATCH':
+            if Advertisement.objects.filter(id=self.context['request'].parser_context['kwargs']['pk'],
+                                            status='OPEN').count() >= 1:
+                return data
+            else:
+                raise serializers.ValidationError('Sorry, Note_status is already CLOSED!')
 
-        if Advertisement.objects.filter(creator_id=self.context['request'].user, status='OPEN').count() < 11:
-            return data
-        else:
-            raise ValueError('Sorry, User has too many notes with status "OPEN"!')
