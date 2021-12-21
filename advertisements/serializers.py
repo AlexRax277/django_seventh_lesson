@@ -40,9 +40,8 @@ class AdvertisementSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError('Sorry, User has too many notes with status OPEN!')
         if self.context['request'].method == 'PATCH':
-            if Advertisement.objects.filter(id=self.context['request'].parser_context['kwargs']['pk'],
-                                            status='OPEN').count() >= 1:
+            if Advertisement.objects.get(id=self.context['request'].parser_context['kwargs']['pk']).status != data['status']:
                 return data
             else:
-                raise serializers.ValidationError('Sorry, Note_status is already CLOSED!')
+                raise serializers.ValidationError('Sorry, Note_status is not different!')
 
